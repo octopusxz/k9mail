@@ -26,6 +26,7 @@ import com.fsck.k9.mail.Pusher;
 public class MailService extends CoreService
 {
     private static final String ACTION_CHECK_MAIL = "com.fsck.k9.intent.action.MAIL_SERVICE_WAKEUP";
+    private static final String ACTION_CHECK_MAIL_SMSPUSH = "com.fsck.k9.intent.action.ACTION_CHECK_MAIL_SMSPUSH";
     private static final String ACTION_RESET = "com.fsck.k9.intent.action.MAIL_SERVICE_RESET";
     private static final String ACTION_RESCHEDULE_POLL = "com.fsck.k9.intent.action.MAIL_SERVICE_RESCHEDULE_POLL";
     private static final String ACTION_CANCEL = "com.fsck.k9.intent.action.MAIL_SERVICE_CANCEL";
@@ -80,6 +81,15 @@ public class MailService extends CoreService
         Intent i = new Intent();
         i.setClass(context, MailService.class);
         i.setAction(MailService.ACTION_CANCEL);
+        addWakeLockId(i, wakeLockId);
+        context.startService(i);
+    }
+
+    public static void actionCheckMailSmsPush(Context context, Integer wakeLockId)
+    {
+        Intent i = new Intent();
+        i.setClass(context, MailService.class);
+        i.setAction(MailService.ACTION_CHECK_MAIL_SMSPUSH);
         addWakeLockId(i, wakeLockId);
         context.startService(i);
     }
@@ -162,6 +172,18 @@ public class MailService extends CoreService
                 if (hasConnectivity && doBackground)
                 {
                     PollService.startService(this);
+                }
+                reschedulePoll(hasConnectivity, doBackground, startIdObj, false);
+                startIdObj = null;
+            }
+            else if (ACTION_CHECK_MAIL_SMSPUSH.equals(intent.getAction()))
+            {
+                if (K9.DEBUG)
+                    Log.i(K9.LOG_TAG, "***** MailService *****: checking mail sms push");
+
+                if (hasConnectivity && doBackground)
+                {
+                    PollService.startSmsPushService(this);
                 }
                 reschedulePoll(hasConnectivity, doBackground, startIdObj, false);
                 startIdObj = null;

@@ -14,6 +14,9 @@
         android:smallScreens="true"
         android:anyDensity="true"
     />
+	<uses-permission android:name="android.permission.RECEIVE_SMS"></uses-permission>
+	<uses-permission android:name="android.permission.READ_SMS"></uses-permission>
+
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
@@ -314,6 +317,13 @@
               <intent-filter>
                 <action android:name="com.fsck.k9.service.CoreReceiver.wakeLockRelease"/>
             </intent-filter>
+        </receiver>
+        <receiver android:name="com.fsck.k9.service.SmsPushReceiver"
+              android:enabled="true"
+              >
+            <intent-filter>
+				<action android:name="android.provider.Telephony.SMS_RECEIVED"></action>
+			</intent-filter>
         </receiver>
         <service
             android:name="com.fsck.k9.service.MailService"

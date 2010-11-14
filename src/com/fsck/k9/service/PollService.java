@@ -17,6 +17,7 @@ public class PollService extends CoreService
 {
     private static String START_SERVICE = "com.fsck.k9.service.PollService.startService";
     private static String STOP_SERVICE = "com.fsck.k9.service.PollService.stopService";
+    private static String START_SMSMPUSH_SERVICE = "com.fsck.k9.service.PollService.startSmsPush";
 
     private Listener mListener = new Listener();
 
@@ -38,10 +39,20 @@ public class PollService extends CoreService
         context.startService(i);
     }
 
+    public static void startSmsPushService(Context context)
+    {
+        Intent i = new Intent();
+        i.setClass(context, PollService.class);
+        i.setAction(PollService.START_SMSMPUSH_SERVICE);
+        addWakeLock(context, i);
+        context.startService(i);
+    }
+
     @Override
     public void startService(Intent intent, int startId)
     {
-        if (START_SERVICE.equals(intent.getAction()))
+        if (START_SERVICE.equals(intent.getAction()) ||
+        		START_SMSMPUSH_SERVICE.equals(intent.getAction()))
         {
             if (K9.DEBUG)
                 Log.i(K9.LOG_TAG, "PollService started with startId = " + startId);
@@ -52,10 +63,12 @@ public class PollService extends CoreService
             {
                 if (K9.DEBUG)
                     Log.i(K9.LOG_TAG, "***** PollService *****: starting new check");
+                boolean bCheckForce = START_SMSMPUSH_SERVICE.equals(intent.getAction());
+                
                 mListener.setStartId(startId);
                 mListener.wakeLockAcquire();
                 controller.setCheckMailListener(mListener);
-                controller.checkMail(this, null, false, false, mListener);
+                controller.checkMail(this, null, bCheckForce, false, mListener);
             }
             else
             {
